@@ -1,0 +1,53 @@
+{% extends 'records/base.html' %}
+{% block title %}Сводка — Учёт ЭЭГ{% endblock %}
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card text-bg-primary mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Пациентов</h5>
+        <p class="display-6">{{ patients_total }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-bg-success mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Сеансов</h5>
+        <p class="display-6">{{ sessions_total }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-bg-warning mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Файлов</h5>
+        <p class="display-6">{{ files_total }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<h4>Последние сеансы</h4>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Дата</th>
+      <th>Пациент</th>
+      <th>Врач</th>
+      <th>Длительность</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in latest_sessions %}
+    <tr>
+      <td>{{ session.start_datetime|date:"d.m.Y H:i" }}</td>
+      <td><a href="{% url 'patient_detail' session.patient_id %}">{{ session.patient.full_name }}</a></td>
+      <td>{{ session.technician }}</td>
+      <td>{{ session.duration_minutes }} мин</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4" class="text-center">Нет данных</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

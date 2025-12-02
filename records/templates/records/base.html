@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Учёт ЭЭГ{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'dashboard' %}">ЭЭГ-журнал</a>
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="{% url 'patients_list' %}">Пациенты</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'create_patient' %}">+ Пациент</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'create_session' %}">+ Сеанс</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'upload_file' %}">+ Файл</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/">Админка</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <main class="container">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

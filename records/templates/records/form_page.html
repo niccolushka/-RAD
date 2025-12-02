@@ -1,0 +1,10 @@
+{% extends 'records/base.html' %}
+{% block title %}{{ title }} — Учёт ЭЭГ{% endblock %}
+{% block content %}
+<h3 class="mb-3">{{ title }}</h3>
+<form method="post" enctype="multipart/form-data" class="card card-body shadow-sm">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}
