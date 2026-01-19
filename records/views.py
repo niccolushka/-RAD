@@ -6,8 +6,8 @@ from django.urls import reverse
 from typing import TYPE_CHECKING, cast
 from django.db.models.query import QuerySet
 
-from .forms import EEGFileForm, EEGSessionForm, PatientForm
-from .models import EEGFile, EEGSession, Patient
+from .forms import EEGAnalysisResultForm, EEGFileForm, EEGSessionForm, PatientForm
+from .models import EEGAnalysisResult, EEGFile, EEGSession, Patient
 
 if TYPE_CHECKING:
     from .models import EEGSession
@@ -19,6 +19,7 @@ def dashboard(request):
         "patients_total": Patient.objects.count(),
         "sessions_total": EEGSession.objects.count(),
         "files_total": EEGFile.objects.count(),
+        "analysis_total": EEGAnalysisResult.objects.count(),
         "latest_sessions": EEGSession.objects.select_related("patient")[:5],
     }
     return render(request, "records/dashboard.html", context)
@@ -38,9 +39,9 @@ def patient_detail(request, pk: int):
     # если его нет — делаем явный фильтр по модели (анализатор перестаёт жаловаться).
     related_mgr = getattr(patient, "sessions", None)
     if related_mgr is None:
-        qs = EEGSession.objects.filter(patient=patient).prefetch_related("files")
+        qs = EEGSession.objects.filter(patient=patient).prefetch_related("files", "analysis_results")
     else:
-        qs = related_mgr.prefetch_related("files").all()
+        qs = related_mgr.prefetch_related("files", "analysis_results").all()
 
     sessions = cast(QuerySet["EEGSession"], qs)
     return render(
@@ -65,6 +66,7 @@ def create_patient(request):
 
 def create_session(request):
     """Регистрация сеанса обследования."""
+    initial_patient = request.GET.get("patient")
     if request.method == "POST":
         form = EEGSessionForm(request.POST)
         if form.is_valid():
@@ -72,7 +74,7 @@ def create_session(request):
             messages.success(request, "Сеанс добавлен")
             return redirect(reverse("patient_detail", args=[session.patient_id]))
     else:
-        form = EEGSessionForm()
+        form = EEGSessionForm(initial={"patient": initial_patient} if initial_patient else None)
     return render(request, "records/form_page.html", {"form": form, "title": "Новый сеанс"})
 
 
@@ -87,3 +89,21 @@ def upload_file(request):
     else:
         form = EEGFileForm()
     return render(request, "records/form_page.html", {"form": form, "title": "Загрузка файла"})
+
+
+def create_analysis_result(request):
+    """Добавление результата классификации эмоций."""
+    initial_session = request.GET.get("session")
+    if request.method == "POST":
+        form = EEGAnalysisResultForm(request.POST, request.FILES)
+        if form.is_valid():
+            analysis = form.save()
+            messages.success(request, "Результат анализа сохранён")
+            return redirect(reverse("patient_detail", args=[analysis.session.patient_id]))
+    else:
+        form = EEGAnalysisResultForm(initial={"session": initial_session} if initial_session else None)
+    return render(
+        request,
+        "records/form_page.html",
+        {"form": form, "title": "Новый результат анализа"},
+    )
