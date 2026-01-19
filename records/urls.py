@@ -10,4 +10,5 @@ urlpatterns = [
     path("patients/new/", views.create_patient, name="create_patient"),
     path("sessions/new/", views.create_session, name="create_session"),
     path("files/upload/", views.upload_file, name="upload_file"),
+    path("analysis/new/", views.create_analysis_result, name="create_analysis_result"),
 ]

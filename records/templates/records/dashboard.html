@@ -2,7 +2,7 @@
 {% block title %}Сводка — Учёт ЭЭГ{% endblock %}
 {% block content %}
 <div class="row mb-4">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card text-bg-primary mb-3">
       <div class="card-body">
         <h5 class="card-title">Пациентов</h5>
@@ -10,7 +10,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card text-bg-success mb-3">
       <div class="card-body">
         <h5 class="card-title">Сеансов</h5>
@@ -18,11 +18,19 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card text-bg-warning mb-3">
       <div class="card-body">
         <h5 class="card-title">Файлов</h5>
         <p class="display-6">{{ files_total }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-info mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Анализов</h5>
+        <p class="display-6">{{ analysis_total }}</p>
       </div>
     </div>
   </div>

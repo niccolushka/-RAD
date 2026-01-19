@@ -8,8 +8,8 @@
     {% if patient.contact_info %}<p class="mt-1">{{ patient.contact_info }}</p>{% endif %}
   </div>
   <a class="btn btn-primary" href="{% url 'create_session' %}?patient={{ patient.pk }}">
-  Добавить сеанс
-</a>
+    Добавить сеанс
+  </a>
 </div>
 <h5>Сеансы</h5>
 <div class="accordion" id="sessionsAccordion">
@@ -19,6 +19,10 @@
       <a class="btn btn-sm btn-outline-primary"
    href="{% url 'upload_file' %}?session={{ session.id }}">
   Загрузить файл
+</a>
+      <a class="btn btn-sm btn-outline-success ms-2"
+   href="{% url 'create_analysis_result' %}?session={{ session.id }}">
+  Добавить анализ
 </a>
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ session.id }}">
         {{ session.start_datetime|date:"d.m.Y H:i" }} — {{ session.technician }} ({{ session.duration_minutes }} мин)
@@ -33,6 +37,24 @@
             <li><a href="{{ file.file.url }}">{{ file.description|default:file.file.name }}</a> ({{ file.uploaded_at|date:"d.m.Y H:i" }})</li>
           {% empty %}
             <li class="text-muted">Нет файлов</li>
+          {% endfor %}
+        </ul>
+        <h6>Результаты анализа</h6>
+        <ul>
+          {% for analysis in session.analysis_results.all %}
+            <li>
+              <strong>{{ analysis.get_emotion_label_display }}</strong>,
+              {{ analysis.confidence|floatformat:2 }}
+              ({{ analysis.model_name }}, {{ analysis.created_at|date:"d.m.Y H:i" }})
+              {% if analysis.visualization %}
+                — <a href="{{ analysis.visualization.url }}">визуализация</a>
+              {% endif %}
+              {% if analysis.notes %}
+                <div class="text-muted small">{{ analysis.notes }}</div>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="text-muted">Нет результатов анализа</li>
           {% endfor %}
         </ul>
       </div>

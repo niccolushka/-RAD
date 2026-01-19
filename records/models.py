@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from django.db import models
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
 
 
 class Patient(models.Model):
@@ -56,3 +56,51 @@ class EEGFile(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover
         return self.file.name
+
+
+class EEGAnalysisResult(models.Model):
+    """Результаты интеллектуального анализа ЭЭГ."""
+
+    EMOTION_CHOICES = [
+        ("neutral", "Нейтральное состояние"),
+        ("calm", "Спокойствие"),
+        ("joy", "Радость"),
+        ("sadness", "Печаль"),
+        ("stress", "Стресс"),
+        ("fear", "Страх"),
+        ("anger", "Гнев"),
+        ("fatigue", "Утомление"),
+    ]
+
+    session = models.ForeignKey(
+        EEGSession,
+        on_delete=models.CASCADE,
+        related_name="analysis_results",
+        verbose_name="Сеанс ЭЭГ",
+    )
+    created_at = models.DateTimeField("Дата расчёта", auto_now_add=True)
+    model_name = models.CharField("Модель/алгоритм", max_length=150)
+    emotion_label = models.CharField("Класс эмоции", max_length=30, choices=EMOTION_CHOICES)
+    confidence = models.FloatField(
+        "Достоверность, 0-1",
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+        help_text="Оценка уверенности классификатора (0-1).",
+    )
+    metrics = models.JSONField("Метрики/признаки", blank=True, default=dict)
+    visualization = models.FileField(
+        "Визуализация",
+        upload_to="eeg_visuals/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=["png", "jpg", "jpeg", "svg", "pdf"]),
+        ],
+    )
+    notes = models.TextField("Комментарий аналитика", blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Результат анализа"
+        verbose_name_plural = "Результаты анализа"
+
+    def __str__(self) -> str:  # pragma: no cover
+        return f"{self.session} — {self.get_emotion_label_display()}"
